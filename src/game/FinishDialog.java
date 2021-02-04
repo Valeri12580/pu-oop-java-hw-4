@@ -7,21 +7,17 @@ import java.awt.event.ActionListener;
 public class FinishDialog extends JDialog {
 
 
-    public FinishDialog(Frame owner, String title, boolean modal, ActionListener onRestart,ActionListener onClose) {
-        super(owner, title, modal);
+    public FinishDialog(Frame owner,  boolean modal, String labelTitle,ActionListener onRestart,ActionListener onClose) {
+        super(owner, "Играта приключи", modal);
         super.setLayout(new FlowLayout());
-
-        setLabel();
+        setLabel(labelTitle);
         setRestartB(onRestart);
         setCloseB(onClose);
 
-        setSize(400, 400);
-        setVisible(true);
-
     }
 
-    private void setLabel() {
-        JLabel label = new JLabel("Ти победи!");
+    private void setLabel(String title) {
+        JLabel label = new JLabel(title);
         super.add(label);
     }
 
@@ -36,6 +32,11 @@ public class FinishDialog extends JDialog {
         closeB.addActionListener(actionListener);
 
         super.add(closeB);
+    }
+
+    public void visualize(){
+        setSize(400, 400);
+        setVisible(true);
     }
 
 

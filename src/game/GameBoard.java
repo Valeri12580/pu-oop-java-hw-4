@@ -1,15 +1,13 @@
 package game;
 
 import game.fields.GpsCoordinate;
-import game.fields.StartingPoint;
 import game.fields.UndiscoveredTerritory;
 import game.fields.UnreachableTerritory;
+import game.fields.YellowPoint;
 import game.fields.abstraction.GameField;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
@@ -30,15 +28,17 @@ public class GameBoard extends JFrame implements MouseListener {
         super.addMouseListener(this);
 
     }
-    public void start(){
+
+    public void start() {
         generateFields();
         initWindow();
     }
 
-    private void restart(){
-        this.fields=new GameField[8][8] ;
+    private void restart() {
+        this.fields = new GameField[8][8];
         this.start();
         super.repaint();
+
     }
 
     @Override
@@ -76,7 +76,7 @@ public class GameBoard extends JFrame implements MouseListener {
     }
 
 
-    private void generateSpecificTerritory(int availableFigures ,Class<?> clazz, Random random) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private void generateSpecificTerritory(int availableFigures, Class<?> clazz, Random random) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         int row;
         int col;
 
@@ -102,7 +102,7 @@ public class GameBoard extends JFrame implements MouseListener {
         int row = randomPositionXY[random.nextInt(2)];
         int col = randomPositionXY[random.nextInt(2)];
 
-        fields[row][col] = new StartingPoint(row, col, "");
+        fields[row][col] = new YellowPoint(row, col, "");
 
     }
 
@@ -111,39 +111,44 @@ public class GameBoard extends JFrame implements MouseListener {
         int row = e.getY() / GameField.FIELD_SIZE;
         int col = e.getX() / GameField.FIELD_SIZE;
 
-        if(fields[row][col] instanceof GpsCoordinate gpsCoordinate){
-            if(gpsCoordinate.isEnding()){
+        if (isMoveValid(row, col)) {
 
-              FinishDialog finishDialog=new FinishDialog(this,"Играта приключи",true,(action)->{
-                  restart();
+            if(chosenField!=null){
 
-              }
-              , (action)->System.exit(0));
+                if (!chosenField.equals(fields[row][col])) {
+                    return;
+                }
 
+                fields[row][col] = fieldGenerator(row, col);
+                chosenField = null;
 
+                if(isEndgameConditionOccurred(row,col)){
+                    visualiseEndingWindow("Ти загуби");
+                }
+            } else if (fields[row][col] instanceof GpsCoordinate gpsCoordinate) {
 
+                if (gpsCoordinate.isEnding()) {
+                    visualiseEndingWindow("Ти спечели!!!");
+                }
+            } else {
 
-            }
-        }
-
-        if (chosenField == null) {
-            if (isMoveValid(row, col)) {
-                chosenField = new StartingPoint(row, col, "?");
+                chosenField = new YellowPoint(row, col, "?");
                 fields[row][col] = chosenField;
-            }
-        } else {
-            if (!chosenField.equals(fields[row][col])) {
-                return;
-            }
 
-            fields[row][col] = fieldGenerator(row, col);
-            chosenField = null;
+            }
         }
-
 
         super.repaint();
+    }
 
+    private void visualiseEndingWindow(String title) {
+        FinishDialog finishDialog = new FinishDialog(this, true, title, (action) -> {
+            restart();
 
+        }
+                , (action) -> System.exit(0));
+
+        finishDialog.visualize();
     }
 
     private GameField fieldGenerator(int row, int col) {
@@ -151,23 +156,36 @@ public class GameBoard extends JFrame implements MouseListener {
         int randomN = random.nextInt(10);
 
 
-        return randomN < 2 ? new UnreachableTerritory(row,col):new StartingPoint(row,col,"");
+        return randomN < 2 ? new UnreachableTerritory(row, col) : new YellowPoint(row, col, "");
     }
 
-    private boolean isMoveValid(int row, int col) {
-
-        Point upper = new Point(col, row - 1);
-        Point lower = new Point(col, row + 1);
-        Point right = new Point(col + 1, row);
-        Point left = new Point(col - 1, row);
-
-        Point[] surroundingCoordinates = new Point[]{upper, lower, right, left};
+    private boolean isEndgameConditionOccurred(int row, int col) {
+        Point[] surroundingCoordinates = generateSurroundingCoordinates(row, col);
 
         for (Point point : surroundingCoordinates) {
             int x = (int) point.getX();
             int y = (int) point.getY();
             try {
-                if (fields[y][x] instanceof StartingPoint) {
+                if (!(fields[y][x] instanceof UnreachableTerritory)) {
+                    return false;
+                }
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                System.out.println("out of bound");
+            }
+        }
+        return true;
+
+    }
+
+    private boolean isMoveValid(int row, int col) {
+
+        Point[] surroundingCoordinates = generateSurroundingCoordinates(row, col);
+
+        for (Point point : surroundingCoordinates) {
+            int x = (int) point.getX();
+            int y = (int) point.getY();
+            try {
+                if (fields[y][x] instanceof YellowPoint) {
                     return true;
                 }
             } catch (ArrayIndexOutOfBoundsException ex) {
@@ -176,6 +194,15 @@ public class GameBoard extends JFrame implements MouseListener {
         }
 
         return false;
+    }
+
+    private Point[] generateSurroundingCoordinates(int row, int col) {
+        Point upper = new Point(col, row - 1);
+        Point lower = new Point(col, row + 1);
+        Point right = new Point(col + 1, row);
+        Point left = new Point(col - 1, row);
+
+        return new Point[]{upper, lower, right, left};
     }
 
 
