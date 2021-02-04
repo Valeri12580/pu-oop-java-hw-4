@@ -7,8 +7,9 @@ import java.awt.*;
 public class StartingPoint extends GameField {
     private String symbol;
     private final int positionOfString=GameField.FIELD_SIZE/2;
-    public StartingPoint(int y, int x, Color color, String symbol) {
-        super(y, x, color);
+
+    public StartingPoint(int y, int x,String symbol) {
+        super(y, x, Color.YELLOW);
         this.symbol = symbol;
     }
 

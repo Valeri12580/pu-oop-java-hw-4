@@ -9,8 +9,8 @@ public abstract class GameField {
     public static final int FIELD_SIZE = 100;
 
     public GameField(int y, int x, Color color) {
-        this.y = y * GameField.FIELD_SIZE;
-        this.x = x * GameField.FIELD_SIZE;
+        setX(x);
+        setY(y);
         this.color = color;
     }
 
@@ -27,5 +27,13 @@ public abstract class GameField {
     private void draw(Graphics g) {
         g.setColor(Color.black);
         g.drawRect(x, y, GameField.FIELD_SIZE, GameField.FIELD_SIZE);
+    }
+
+    public void setY(int y) {
+        this.y = y * GameField.FIELD_SIZE;
+    }
+
+    public void setX(int x) {
+        this.x = x * GameField.FIELD_SIZE;
     }
 }

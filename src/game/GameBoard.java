@@ -15,12 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
 
-public class GameBoard extends JFrame  implements MouseListener {
+public class GameBoard extends JFrame implements MouseListener {
 
     //todo Block other fields when the user chose field with ? , show proper field(blue or yellow) , change Starting Point class name
 
 
     private GameField[][] fields = new GameField[8][8];
+    private GameField chosenField;
 
     public GameBoard() throws HeadlessException {
         super("GPS-a ми се счупи");
@@ -53,22 +54,22 @@ public class GameBoard extends JFrame  implements MouseListener {
         Random random = new Random();
         generateStartingPoint(random);
         try {
-            generateSpecificTerritory(8, Color.GREEN, GpsCoordinate.class, random);
-            generateSpecificTerritory(5, Color.BLUE, UnreachableTerritory.class, random);
-            generateSpecificTerritory(50, Color.RED, UndiscoveredTerritory.class, random);
+            generateSpecificTerritory(8, GpsCoordinate.class, random);
+            generateSpecificTerritory(5, UnreachableTerritory.class, random);
+            generateSpecificTerritory(50, UndiscoveredTerritory.class, random);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (Exception ignored) {
+
         }
 
     }
 
 
-    private void generateSpecificTerritory(int availableFigures, Color color, Class<?> clazz, Random random) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private void generateSpecificTerritory(int availableFigures ,Class<?> clazz, Random random) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         int row;
         int col;
 
-        Constructor<?> constructor = clazz.getDeclaredConstructor(int.class, int.class, Color.class);
+        Constructor<?> constructor = clazz.getDeclaredConstructor(int.class, int.class);
 
         while (availableFigures != 0) {
             row = random.nextInt(8);
@@ -78,7 +79,7 @@ public class GameBoard extends JFrame  implements MouseListener {
                 continue;
             }
 
-            fields[row][col] = (GameField) constructor.newInstance(row, col, color);
+            fields[row][col] = (GameField) constructor.newInstance(row, col);
 
             availableFigures--;
         }
@@ -90,64 +91,66 @@ public class GameBoard extends JFrame  implements MouseListener {
         int row = randomPositionXY[random.nextInt(2)];
         int col = randomPositionXY[random.nextInt(2)];
 
-        fields[row][col] = new StartingPoint(row, col, Color.YELLOW, "");
+        fields[row][col] = new StartingPoint(row, col, "");
 
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        int row=e.getY()/GameField.FIELD_SIZE;
-        int col=e.getX()/GameField.FIELD_SIZE;
+        int row = e.getY() / GameField.FIELD_SIZE;
+        int col = e.getX() / GameField.FIELD_SIZE;
 
-        GameField chosenField;
+        if (chosenField == null) {
+            if (isMoveValid(row, col)) {
+                chosenField = new StartingPoint(row, col, "?");
+                fields[row][col] = chosenField;
+            }
+        } else {
+            if (!chosenField.equals(fields[row][col])) {
+                return;
+            }
 
-        if(isMoveValid(row,col)){
-            chosenField=new StartingPoint(row,col,Color.YELLOW, "?");
-            fields[row][col]=chosenField;
+            fields[row][col] = fieldGenerator(row, col);
+            chosenField = null;
         }
+
 
         super.repaint();
 
 
     }
 
-    private boolean isMoveValid(int row,int col){
+    private GameField fieldGenerator(int row, int col) {
+        Random random = new Random();
+        int randomN = random.nextInt(10);
 
-        Point upper = new Point(col,row-1 );
-        Point lower=new Point(col,row+1);
-        Point right=new Point(col+1,row);
-        Point left=new Point(col-1,row );
 
-        Point[] surroundingCoordinates= new Point[]{upper,lower,right,left};
+        return randomN < 2 ? new UnreachableTerritory(row,col):new StartingPoint(row,col,"");
+    }
+
+    private boolean isMoveValid(int row, int col) {
+
+        Point upper = new Point(col, row - 1);
+        Point lower = new Point(col, row + 1);
+        Point right = new Point(col + 1, row);
+        Point left = new Point(col - 1, row);
+
+        Point[] surroundingCoordinates = new Point[]{upper, lower, right, left};
 
         for (Point point : surroundingCoordinates) {
-            int x = (int)point.getX();
-            int y = (int)point.getY();
+            int x = (int) point.getX();
+            int y = (int) point.getY();
             try {
-                if(fields[y][x] instanceof StartingPoint){
+                if (fields[y][x] instanceof StartingPoint) {
                     return true;
                 }
-            }catch (ArrayIndexOutOfBoundsException ex){
+            } catch (ArrayIndexOutOfBoundsException ex) {
                 System.out.println("out of bound");
             }
         }
 
         return false;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     @Override
