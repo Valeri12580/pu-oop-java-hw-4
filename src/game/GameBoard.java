@@ -8,6 +8,8 @@ import game.fields.abstraction.GameField;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
@@ -26,8 +28,17 @@ public class GameBoard extends JFrame implements MouseListener {
     public GameBoard() throws HeadlessException {
         super("GPS-a ми се счупи");
         super.addMouseListener(this);
-        initWindow();
+
+    }
+    public void start(){
         generateFields();
+        initWindow();
+    }
+
+    private void restart(){
+        this.fields=new GameField[8][8] ;
+        this.start();
+        super.repaint();
     }
 
     @Override
@@ -99,6 +110,21 @@ public class GameBoard extends JFrame implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         int row = e.getY() / GameField.FIELD_SIZE;
         int col = e.getX() / GameField.FIELD_SIZE;
+
+        if(fields[row][col] instanceof GpsCoordinate gpsCoordinate){
+            if(gpsCoordinate.isEnding()){
+
+              FinishDialog finishDialog=new FinishDialog(this,"Играта приключи",true,(action)->{
+                  restart();
+
+              }
+              , (action)->System.exit(0));
+
+
+
+
+            }
+        }
 
         if (chosenField == null) {
             if (isMoveValid(row, col)) {

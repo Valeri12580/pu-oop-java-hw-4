@@ -10,16 +10,20 @@ public class GpsCoordinate extends GameField {
 
     public GpsCoordinate(int y, int x) {
         super(y, x, Color.GREEN);
-
-        if(!isBabaQgaAlreadyExist){
-            isEnding=true;
-            isBabaQgaAlreadyExist=true;
-        }
+        this.isEnding=true;
+//        if(!isBabaQgaAlreadyExist){
+//            isEnding=true;
+//            isBabaQgaAlreadyExist=true;
+//        }
 
     }
 
     public GpsCoordinate setEnding(boolean ending) {
         isEnding = ending;
         return this;
+    }
+
+    public boolean isEnding() {
+        return isEnding;
     }
 }
