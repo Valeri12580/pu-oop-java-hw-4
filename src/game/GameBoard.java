@@ -17,9 +17,6 @@ import java.util.Random;
 
 public class GameBoard extends JFrame implements MouseListener {
 
-    //todo Block other fields when the user chose field with ? , show proper field(blue or yellow) , change Starting Point class name
-
-
     private GameField[][] fields = new GameField[8][8];
     private GameField chosenField;
 
@@ -29,11 +26,17 @@ public class GameBoard extends JFrame implements MouseListener {
 
     }
 
+    /*
+    start of the game
+     */
     public void start() {
         generateFields();
         initWindow();
     }
 
+    /*
+    restart of the game
+     */
     private void restart() {
         this.fields = new GameField[8][8];
         this.start();
@@ -55,12 +58,18 @@ public class GameBoard extends JFrame implements MouseListener {
 
     }
 
+    /*
+    initialization of the window
+     */
     private void initWindow() {
         super.setSize(800, 800);
         super.setVisible(true);
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    /*
+    generation of fields
+     */
     private void generateFields() {
         Random random = new Random();
         generateStartingPoint(random);
@@ -75,6 +84,17 @@ public class GameBoard extends JFrame implements MouseListener {
 
     }
 
+
+    /**
+     * Method that geenrate specific figures
+     * @param availableFigures number of the figures to be printed
+     * @param clazz class of the figures
+     * @param random instance of Random
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     */
 
     private void generateSpecificTerritory(int availableFigures, Class<?> clazz, Random random) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         int row;
@@ -97,6 +117,10 @@ public class GameBoard extends JFrame implements MouseListener {
     }
 
 
+    /**
+     * generation of starting point on random place
+     * @param random random instance
+     */
     private void generateStartingPoint(Random random) {
         int[] randomPositionXY = {0, 7};
         int row = randomPositionXY[random.nextInt(2)];
@@ -106,41 +130,51 @@ public class GameBoard extends JFrame implements MouseListener {
 
     }
 
+    /**
+     * method that handle user click and move figures
+     * @param e event
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         int row = e.getY() / GameField.FIELD_SIZE;
         int col = e.getX() / GameField.FIELD_SIZE;
 
+        GameField clickedField=fields[row][col];
+
+
         if (isMoveValid(row, col)) {
 
             if(chosenField!=null){
 
-                if (!chosenField.equals(fields[row][col])) {
+                if (!chosenField.equals(clickedField)) {
                     return;
                 }
-
                 fields[row][col] = fieldGenerator(row, col);
                 chosenField = null;
 
                 if(isEndgameConditionOccurred(row,col)){
                     visualiseEndingWindow("Ти загуби");
                 }
-            } else if (fields[row][col] instanceof GpsCoordinate gpsCoordinate) {
-
-                if (gpsCoordinate.isEnding()) {
-                    visualiseEndingWindow("Ти спечели!!!");
-                }
             } else {
-
+                if (clickedField instanceof GpsCoordinate gpsCoordinate) {
+                    if (gpsCoordinate.isEnding()) {
+                        visualiseEndingWindow("Ти спечели!!!");
+                    }
+                }
                 chosenField = new YellowPoint(row, col, "?");
                 fields[row][col] = chosenField;
 
             }
+
         }
 
         super.repaint();
     }
 
+    /**
+     * visualisation of the ending window
+     * @param title
+     */
     private void visualiseEndingWindow(String title) {
         FinishDialog finishDialog = new FinishDialog(this, true, title, (action) -> {
             restart();
@@ -151,6 +185,12 @@ public class GameBoard extends JFrame implements MouseListener {
         finishDialog.visualize();
     }
 
+    /**
+     * field generator that generate UnreachableTerritory(20%) or YellowPoint(80%)
+     * @param row row of the matrix
+     * @param col col of the matrix
+     * @return
+     */
     private GameField fieldGenerator(int row, int col) {
         Random random = new Random();
         int randomN = random.nextInt(10);
@@ -159,6 +199,13 @@ public class GameBoard extends JFrame implements MouseListener {
         return randomN < 2 ? new UnreachableTerritory(row, col) : new YellowPoint(row, col, "");
     }
 
+
+    /**
+     * check for game ending
+     * @param row
+     * @param col
+     * @return
+     */
     private boolean isEndgameConditionOccurred(int row, int col) {
         Point[] surroundingCoordinates = generateSurroundingCoordinates(row, col);
 
@@ -169,14 +216,20 @@ public class GameBoard extends JFrame implements MouseListener {
                 if (!(fields[y][x] instanceof UnreachableTerritory)) {
                     return false;
                 }
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                System.out.println("out of bound");
+            } catch (Exception ignored) {
+
             }
         }
         return true;
 
     }
 
+    /**
+     * check if move is valid
+     * @param row row in the matrix
+     * @param col col in the matrix
+     * @return
+     */
     private boolean isMoveValid(int row, int col) {
 
         Point[] surroundingCoordinates = generateSurroundingCoordinates(row, col);
@@ -196,6 +249,12 @@ public class GameBoard extends JFrame implements MouseListener {
         return false;
     }
 
+    /**
+     * generator of surrounding points
+     * @param row row in the matrix
+     * @param col col in the matrix
+     * @return Array of Points
+     */
     private Point[] generateSurroundingCoordinates(int row, int col) {
         Point upper = new Point(col, row - 1);
         Point lower = new Point(col, row + 1);

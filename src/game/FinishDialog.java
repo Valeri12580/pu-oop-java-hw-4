@@ -16,17 +16,29 @@ public class FinishDialog extends JDialog {
 
     }
 
+    /**
+     * set label of the dialog
+     * @param title title of the dialog
+     */
     private void setLabel(String title) {
         JLabel label = new JLabel(title);
         super.add(label);
     }
 
+    /**
+     * set restart btn
+     * @param actionListener action
+     */
     private void setRestartB(ActionListener actionListener) {
         JButton restartB = new JButton("Рестартирай играта");
         restartB.addActionListener(actionListener);
         super.add(restartB);
     }
 
+    /**
+     * set close btn
+     * @param actionListener action
+     */
     private void setCloseB(ActionListener actionListener) {
         JButton closeB = new JButton("Затвори играта");
         closeB.addActionListener(actionListener);
@@ -34,6 +46,7 @@ public class FinishDialog extends JDialog {
         super.add(closeB);
     }
 
+    //visualize the window
     public void visualize(){
         setSize(400, 400);
         setVisible(true);
