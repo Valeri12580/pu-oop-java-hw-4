@@ -87,9 +87,10 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * Method that geenrate specific figures
+     *
      * @param availableFigures number of the figures to be printed
-     * @param clazz class of the figures
-     * @param random instance of Random
+     * @param clazz            class of the figures
+     * @param random           instance of Random
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
@@ -119,6 +120,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * generation of starting point on random place
+     *
      * @param random random instance
      */
     private void generateStartingPoint(Random random) {
@@ -132,6 +134,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * method that handle user click and move figures
+     *
      * @param e event
      */
     @Override
@@ -139,20 +142,16 @@ public class GameBoard extends JFrame implements MouseListener {
         int row = e.getY() / GameField.FIELD_SIZE;
         int col = e.getX() / GameField.FIELD_SIZE;
 
-        GameField clickedField=fields[row][col];
-
-
+        GameField clickedField = fields[row][col];
         if (isMoveValid(row, col)) {
-
-            if(chosenField!=null){
-
+            if (chosenField != null) {
                 if (!chosenField.equals(clickedField)) {
                     return;
                 }
                 fields[row][col] = fieldGenerator(row, col);
                 chosenField = null;
 
-                if(isEndgameConditionOccurred(row,col)){
+                if (isEndgameConditionOccurred(row, col)) {
                     visualiseEndingWindow("Ти загуби");
                 }
             } else {
@@ -161,18 +160,18 @@ public class GameBoard extends JFrame implements MouseListener {
                         visualiseEndingWindow("Ти спечели!!!");
                     }
                 }
-                chosenField = new YellowPoint(row, col, "?");
-                fields[row][col] = chosenField;
-
+                if (!(clickedField instanceof UnreachableTerritory)) {
+                    chosenField = new YellowPoint(row, col, "?");
+                    fields[row][col] = chosenField;
+                }
             }
-
         }
-
         super.repaint();
     }
 
     /**
      * visualisation of the ending window
+     *
      * @param title
      */
     private void visualiseEndingWindow(String title) {
@@ -187,6 +186,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * field generator that generate UnreachableTerritory(20%) or YellowPoint(80%)
+     *
      * @param row row of the matrix
      * @param col col of the matrix
      * @return
@@ -202,6 +202,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * check for game ending
+     *
      * @param row
      * @param col
      * @return
@@ -226,6 +227,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * check if move is valid
+     *
      * @param row row in the matrix
      * @param col col in the matrix
      * @return
@@ -251,6 +253,7 @@ public class GameBoard extends JFrame implements MouseListener {
 
     /**
      * generator of surrounding points
+     *
      * @param row row in the matrix
      * @param col col in the matrix
      * @return Array of Points
