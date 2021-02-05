@@ -143,6 +143,7 @@ public class GameBoard extends JFrame implements MouseListener {
         int col = e.getX() / GameField.FIELD_SIZE;
 
         GameField clickedField = fields[row][col];
+
         if (isMoveValid(row, col)) {
             if (chosenField != null) {
                 if (!chosenField.equals(clickedField)) {
@@ -158,6 +159,7 @@ public class GameBoard extends JFrame implements MouseListener {
                 if (clickedField instanceof GpsCoordinate gpsCoordinate) {
                     if (gpsCoordinate.isEnding()) {
                         visualiseEndingWindow("Ти спечели!!!");
+                        return;
                     }
                 }
                 if (!(clickedField instanceof UnreachableTerritory)) {
@@ -243,8 +245,8 @@ public class GameBoard extends JFrame implements MouseListener {
                 if (fields[y][x] instanceof YellowPoint) {
                     return true;
                 }
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                System.out.println("out of bound");
+            } catch (Exception ignored) {
+
             }
         }
 
